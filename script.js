@@ -40,11 +40,13 @@ const getCurrentWeather = () => {
 document.addEventListener("DOMContentLoaded", (e) => {
   e.preventDefault();
   getCurrentWeather();
+  getWeatherForNextSevenDays();
 });
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   getCurrentWeather();
+  getWeatherForNextSevenDays();
 });
 const search = document.querySelector(".search input");
 const suggestionList = document.querySelector("#suggestions-list");
@@ -71,6 +73,7 @@ search.addEventListener("input", () => {
         li.addEventListener("click", () => {
           search.value = item.name;
           getCurrentWeather();
+          getWeatherForNextSevenDays();
           suggestionList.innerHTML = "";
         });
 
@@ -81,11 +84,12 @@ search.addEventListener("input", () => {
       console.error("There was a problem with the fetch operation:", error);
     });
 });
-async function getWeatherForNextSevenDays(location) {
+async function getWeatherForNextSevenDays() {
   const apiKey = "0f2692f22a0049efa0f84219241410";
   const baseUrl = "http://api.weatherapi.com/v1/future.json";
   const today = new Date();
   const weatherData = [];
+  const location = input.value;
 
   for (let i = 0; i < 7; i++) {
     const futureDate = new Date(today);

@@ -6,22 +6,25 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
+  overflow-x: hidden;
 }
 
 .container {
-  margin-top: 5rem;
   max-width: 1600px;
   padding: 3rem;
   margin: auto;
 }
-
+.hero {
+  width: 100vw;
+  height: 100vh;
+}
 .bg {
   position: absolute;
   z-index: -10;
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background: url("./public/img/tree-832079_1920.jpg") center / cover no-repeat;
 }
 
@@ -72,7 +75,7 @@ body {
 }
 
 .horizontal-menu {
-  position: absolute;
+  position: fixed;
   width: 100vw;
   top: 0px;
   left: 0px;
@@ -188,6 +191,6 @@ h1 {
   color: #3498db; /* Blue for min temperature */
 }
 
-.heading_seven_days {
-  margin-top: 3rem;
+.about {
+  margin-top: 5rem;
 }
