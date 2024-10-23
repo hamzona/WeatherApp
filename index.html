@@ -10,10 +10,23 @@
   </head>
   <body>
     <div class="container">
-      <form class="search">
-        <input type="text" value="Sarajevo" />
-        <button type="submit">Submit</button>
-      </form>
+      <nav class="horizontal-menu">
+        <form class="search">
+          <input type="text" value="Sarajevo" />
+          <button type="submit">Search</button>
+          <ul id="suggestions-list"></ul>
+        </form>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="https://www.weatherapi.com/">Resource</a></li>
+        </ul>
+      </nav>
+
+      <div class="bg"></div>
+
       <div class="weather-container">
         <div class="location" id="location"></div>
         <div class="condition" id="condition"></div>
@@ -21,7 +34,8 @@
         <div id="additional-info"></div>
       </div>
 
-      <div class="time-weather"></div>
+      <h1 class="heading_seven_days">7-Day Weather Forecast</h1>
+      <div id="weather-forecast" class="weather-forecast"></div>
     </div>
   </body>
 </html>

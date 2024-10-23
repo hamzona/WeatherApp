@@ -7,7 +7,6 @@ const getCurrentWeather = () => {
 
   fetch(url)
     .then((response) => {
-      console.log(response);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -15,8 +14,6 @@ const getCurrentWeather = () => {
       return response.json();
     })
     .then((data) => {
-      console.log(data); // Process the weather data
-
       const cont = document.querySelector("div");
       document.getElementById(
         "location"
@@ -40,9 +37,20 @@ const getCurrentWeather = () => {
     });
 };
 
-const getForecastWeather = () => {
-  console.log(input.value);
-  const url = `http://api.weatherapi.com/v1/forecast.json?key=0f2692f22a0049efa0f84219241410&q=${input.value}`;
+document.addEventListener("DOMContentLoaded", (e) => {
+  e.preventDefault();
+  getCurrentWeather();
+});
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  getCurrentWeather();
+});
+const search = document.querySelector(".search input");
+const suggestionList = document.querySelector("#suggestions-list");
+
+search.addEventListener("input", () => {
+  const url = `http://api.weatherapi.com/v1/search.json?key=0f2692f22a0049efa0f84219241410&q=${search.value}`;
 
   fetch(url)
     .then((response) => {
@@ -50,68 +58,88 @@ const getForecastWeather = () => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
       return response.json();
     })
     .then((data) => {
-      console.log(data.forecast.forecastday); // Process the weather data
+      suggestionList.innerHTML = "";
 
-      let cont = document.querySelector(".time-weather");
+      data.forEach((item) => {
+        const li = document.createElement("li");
+        li.classList.add("suggestions");
+        li.textContent = item.name;
 
-      data.forecast.forecastday[0].hour.forEach((hour) => {
-        const time = hour.time.slice(11);
-        cont.innerHTML += `
-        <div class="weather-card">
-          <div class="weather-condition">
-            <p><strong>Condition:</strong> ${hour.condition.text}</p>
-          </div>
-      
-          <div class="weather-time">
-            <p><strong>Time:</strong> ${time}</p>
-          </div>
-      
-          <div class="weather-temp">
-            <p><strong>Temperature:</strong> ${hour.temp_c}°C</p>
-          </div>
-      
-          <div class="weather-humidity">
-            <p><strong>Humidity:</strong> ${hour.humidity}%</p>
-          </div>
-      
-          <div class="weather-chance">
-            <p><strong>Chance of Rain:</strong> ${hour.chance_of_rain}%</p>
-            <p><strong>Chance of Snow:</strong> ${hour.chance_of_snow}%</p>
-          </div>
-      
-          <div class="weather-wind">
-            <p><strong>Wind:</strong> ${hour.wind_kph} kph (${hour.wind_dir})</p>
-          </div>
-      
-          <div class="weather-pressure">
-            <p><strong>Pressure:</strong> ${hour.pressure_mb} mb</p>
-          </div>
-      
-          <img src="${hour.condition.icon}" alt="Weather icon" />
-        </div>
-      `;
+        li.addEventListener("click", () => {
+          search.value = item.name;
+          getCurrentWeather();
+          suggestionList.innerHTML = "";
+        });
+
+        suggestionList.appendChild(li);
       });
     })
     .catch((error) => {
-      console.error(
-        "There has been a problem with your fetch operation:",
-        error
-      );
+      console.error("There was a problem with the fetch operation:", error);
     });
-};
-
-document.addEventListener("DOMContentLoaded", (e) => {
-  e.preventDefault();
-  getCurrentWeather();
-  getForecastWeather();
 });
+async function getWeatherForNextSevenDays(location) {
+  const apiKey = "0f2692f22a0049efa0f84219241410";
+  const baseUrl = "http://api.weatherapi.com/v1/future.json";
+  const today = new Date();
+  const weatherData = [];
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  getCurrentWeather();
-  getForecastWeather();
-});
+  for (let i = 0; i < 7; i++) {
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + 14 + i);
+    const formattedDate = futureDate.toISOString().split("T")[0];
+    const url = `${baseUrl}?key=${apiKey}&q=${location}&dt=${formattedDate}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(data);
+      weatherData.push({
+        date: formattedDate,
+        condition: data.forecast.forecastday[0].day.condition.text,
+        maxTemp: data.forecast.forecastday[0].day.maxtemp_c,
+        minTemp: data.forecast.forecastday[0].day.mintemp_c,
+        icon: data.forecast.forecastday[0].day.condition.icon,
+      });
+    } catch (error) {
+      console.error(`Error fetching data for ${formattedDate}:`, error);
+    }
+  }
+
+  renderWeatherData(weatherData);
+}
+
+function renderWeatherData(weatherData) {
+  const forecastContainer = document.getElementById("weather-forecast");
+  forecastContainer.innerHTML = "";
+
+  weatherData.forEach((day) => {
+    const weatherCard = document.createElement("div");
+    weatherCard.className = "weather-card2";
+
+    weatherCard.innerHTML = `
+          <div>
+              <h2>${day.date}</h2>
+              <div class="condition">${day.condition}</div>
+          </div>
+          <div class="temps">
+              <div class="max-temp">Max: ${day.maxTemp}°C</div>
+              <div class="min-temp">Min: ${day.minTemp}°C</div>
+          </div>
+          <img src="${day.icon}" />
+      `;
+
+    forecastContainer.appendChild(weatherCard);
+  });
+}
+
+getWeatherForNextSevenDays("Sarajevo")
+  .then((data) => console.log(data))
+  .catch((error) => console.error("Error:", error));
